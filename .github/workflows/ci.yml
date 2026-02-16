@@ -28,12 +28,12 @@ jobs:
 
       - name: Ruff
         run: |
-          ruff check src tests
+          python -m ruff check src tests
 
       - name: MyPy
         run: |
-          mypy src
+          python -m mypy src
 
       - name: Pytest
         run: |
-          pytest -q
+          python -m pytest -q

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import io
 import logging
 from dataclasses import dataclass
 from pathlib import Path
@@ -75,26 +76,27 @@ def load_nomenclator(
 
 
 def _load_csv_like(path: Path) -> dict[str, NomenclatorEntry]:
-    with path.open("r", encoding="utf-8-sig", newline="") as handle:
-        sample = handle.read(2048)
-        handle.seek(0)
-        delimiter = _detect_delimiter(sample)
-        try:
-            has_header = csv.Sniffer().has_header(sample)
-        except csv.Error:
-            has_header = True
+    content = path.read_text(encoding="utf-8-sig")
+    sample = content[:2048]
+    delimiter = _detect_delimiter(sample)
+    try:
+        has_header = csv.Sniffer().has_header(sample)
+    except csv.Error:
+        has_header = True
 
-        if has_header:
-            reader = csv.DictReader(handle, delimiter=delimiter)
-            return _parse_rows(reader)
+    if has_header:
+        dict_reader = csv.DictReader(io.StringIO(content), delimiter=delimiter)
+        mapped = _parse_rows(dict_reader)
+        if mapped:
+            return mapped
 
-        plain_reader = csv.reader(handle, delimiter=delimiter)
-        rows: list[dict[str, Any]] = []
-        for raw in plain_reader:
-            if not raw:
-                continue
-            rows.append({f"col_{idx}": value for idx, value in enumerate(raw)})
-        return _parse_rows(rows)
+    plain_reader = csv.reader(io.StringIO(content), delimiter=delimiter)
+    rows: list[dict[str, Any]] = []
+    for raw in plain_reader:
+        if not raw:
+            continue
+        rows.append({f"col_{idx}": value for idx, value in enumerate(raw)})
+    return _parse_rows(rows)
 
 
 def _load_excel(path: Path) -> dict[str, NomenclatorEntry]:
@@ -122,10 +124,17 @@ def _parse_rows(rows: Any) -> dict[str, NomenclatorEntry]:
         if not cn_norm:
             continue
 
-        financiado = _parse_bool(_coalesce(lowered, ["financiado", "financiacion", "financia", "financiado_sns"]))
+        financiado = _parse_bool(
+            _coalesce(
+                lowered,
+                ["financiado", "financiacion", "financia", "financiado_sns"],
+            )
+        )
         precio = _parse_float(_coalesce(lowered, ["precio", "pvp", "precio_iva", "importe"]))
         via = _parse_str(_coalesce(lowered, ["via", "via_administracion", "v_a", "administracion"]))
-        lab = _parse_str(_coalesce(lowered, ["laboratorio", "lab", "titular", "nombre_laboratorio"]))
+        lab = _parse_str(
+            _coalesce(lowered, ["laboratorio", "lab", "titular", "nombre_laboratorio"])
+        )
 
         mapped[cn_norm] = NomenclatorEntry(
             financiado=financiado,
@@ -210,13 +219,32 @@ def _parse_str(value: Any) -> str | None:
 def _detect_delimiter(sample: str) -> str:
     if not sample.strip():
         return ","
+    candidates = [",", ";", "\t", "|"]
+    lines = [line for line in sample.splitlines() if line.strip()]
+    best_delimiter = ","
+    best_score = (0, 0.0)
+
+    for delimiter in candidates:
+        if not lines:
+            continue
+        widths: list[int] = []
+        for line in lines[:20]:
+            row = next(csv.reader([line], delimiter=delimiter))
+            widths.append(len(row))
+        rows_with_splits = sum(1 for width in widths if width > 1)
+        avg_width = sum(widths) / len(widths)
+        score = (rows_with_splits, avg_width)
+        if score > best_score:
+            best_score = score
+            best_delimiter = delimiter
+
+    if best_score[0] > 0:
+        return best_delimiter
     try:
         dialect = csv.Sniffer().sniff(sample, delimiters=",;|\t")
         return dialect.delimiter
     except csv.Error:
-        counts = {d: sample.count(d) for d in [",", ";", "\t", "|"]}
-        best = max(counts, key=counts.get)
-        return best if counts[best] > 0 else ","
+        return ","
 
 
 def _find_cn_in_values(values: Any) -> str | None:

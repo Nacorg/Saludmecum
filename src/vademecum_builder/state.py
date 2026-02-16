@@ -25,7 +25,11 @@ class StateData:
             last_full_version=raw.get("last_full_version"),
             last_incremental_date=raw.get("last_incremental_date"),
             total_presentaciones_full=int(raw.get("total_presentaciones_full") or 0),
-            stats_last_run=raw.get("stats_last_run") if isinstance(raw.get("stats_last_run"), dict) else {},
+            stats_last_run=(
+                raw.get("stats_last_run")
+                if isinstance(raw.get("stats_last_run"), dict)
+                else {}
+            ),
             failed_nregistro_last_run=list(raw.get("failed_nregistro_last_run") or []),
         )
 

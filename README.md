@@ -91,9 +91,9 @@ Ejemplo Linux (`03:00 UTC` domingos):
 
 ```bash
 pip install -r requirements-dev.lock
-ruff check src tests
-mypy src
-pytest -q
+python -m ruff check src tests
+python -m mypy src
+python -m pytest -q
 ```
 
 ## GitHub Actions (semanal + release)

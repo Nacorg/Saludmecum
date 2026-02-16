@@ -54,9 +54,16 @@ def run_incremental_build(settings: Settings) -> int:
     failed_ids: list[str] = []
 
     changes = client.get_registro_cambios(prior_state.last_incremental_date)
-    LOGGER.info("registroCambios fecha=%s rows=%s", prior_state.last_incremental_date, len(changes))
+    LOGGER.info(
+        "registroCambios fecha=%s rows=%s",
+        prior_state.last_incremental_date,
+        len(changes),
+    )
 
-    with open_gzip_jsonl_writer(delta_file) as delta_writer, open_gzip_text_writer(deleted_file) as deleted_writer:
+    with (
+        open_gzip_jsonl_writer(delta_file) as delta_writer,
+        open_gzip_text_writer(deleted_file) as deleted_writer,
+    ):
         for change in changes:
             tipo = change.tipo_cambio.strip().lower()
             nregistro = change.nregistro
@@ -82,17 +89,28 @@ def run_incremental_build(settings: Settings) -> int:
                         if cn_fallback:
                             deleted_writer.write(f"{cn_fallback}\n")
                             deleted_count = 1
-                    stats = replace(stats, presentaciones_eliminadas=stats.presentaciones_eliminadas + deleted_count)
+                    stats = replace(
+                        stats,
+                        presentaciones_eliminadas=(
+                            stats.presentaciones_eliminadas + deleted_count
+                        ),
+                    )
                 except Exception as exc:
                     cn_fallback = normalize_cn(change.cn)
                     if cn_fallback:
                         LOGGER.warning(
-                            "Error processing baja nregistro=%s. Using CN fallback from registroCambios: %s",
+                            (
+                                "Error processing baja nregistro=%s. "
+                                "Using CN fallback from registroCambios: %s"
+                            ),
                             nregistro,
                             cn_fallback,
                         )
                         deleted_writer.write(f"{cn_fallback}\n")
-                        stats = replace(stats, presentaciones_eliminadas=stats.presentaciones_eliminadas + 1)
+                        stats = replace(
+                            stats,
+                            presentaciones_eliminadas=stats.presentaciones_eliminadas + 1,
+                        )
                     else:
                         LOGGER.exception("Error processing baja nregistro=%s: %s", nregistro, exc)
                         stats = replace(stats, errores=stats.errores + 1)
@@ -112,7 +130,12 @@ def run_incremental_build(settings: Settings) -> int:
             stats = replace(stats, medicamentos_procesados=stats.medicamentos_procesados + 1)
             presentaciones = map_presentaciones_from_medicamento(med_payload)
             for p in presentaciones:
-                cn_raw = p.get("cn") or p.get("codigoNacional") or p.get("codigo_nacional") or p.get("codigo")
+                cn_raw = (
+                    p.get("cn")
+                    or p.get("codigoNacional")
+                    or p.get("codigo_nacional")
+                    or p.get("codigo")
+                )
                 cn = normalize_cn(cn_raw)
                 nom_entry = nomenclator_map.get(cn) if cn else None
 

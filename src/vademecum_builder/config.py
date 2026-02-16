@@ -53,7 +53,9 @@ class Settings:
         retries = int(os.getenv("HTTP_MAX_RETRIES") or "5")
         max_error_ids = int(os.getenv("MAX_ERROR_IDS") or "2000")
 
-        state_path = Path(cli_state_path or os.getenv("STATE_PATH") or out_dir / "state.json").resolve()
+        state_path = Path(
+            cli_state_path or os.getenv("STATE_PATH") or out_dir / "state.json"
+        ).resolve()
 
         if timeout <= 0:
             raise ValueError("HTTP_TIMEOUT must be > 0")

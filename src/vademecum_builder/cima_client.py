@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from collections.abc import Iterator
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, cast
 
 import requests
 from requests import Session
@@ -60,11 +60,18 @@ class CimaClient:
                 changes.append(CimaChange(nregistro=nregistro, tipo_cambio=tipo, cn=cn_norm))
         return changes
 
-    def _get_json(self, path: str, params: dict[str, Any] | None = None) -> dict[str, Any] | list[Any]:
+    def _get_json(
+        self,
+        path: str,
+        params: dict[str, Any] | None = None,
+    ) -> dict[str, Any] | list[Any]:
         url = f"{self.base_url}{path}"
         response = self.session.get(url, params=params, timeout=self.timeout)
         response.raise_for_status()
-        return response.json()
+        payload = response.json()
+        if isinstance(payload, (dict, list)):
+            return cast(dict[str, Any] | list[Any], payload)
+        return {}
 
 
 def _build_session(max_retries: int) -> Session:
