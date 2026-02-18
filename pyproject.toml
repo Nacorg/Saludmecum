@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "vademecum-builder"
 version = "0.1.0"
-description = "Offline vademecum builder from CIMA with full and incremental modes"
+description = "Constructor offline de vademécum desde CIMA con modos full e incremental"
 readme = "README.md"
 requires-python = ">=3.11"
 authors = [{ name = "Data Engineering Team" }]

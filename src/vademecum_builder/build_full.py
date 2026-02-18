@@ -55,7 +55,7 @@ def run_full_build(settings: Settings) -> int:
             try:
                 med_payload = client.get_medicamento(nregistro)
             except Exception as exc:
-                LOGGER.exception("Error requesting medicamento nregistro=%s: %s", nregistro, exc)
+                LOGGER.exception("Error al solicitar medicamento nregistro=%s: %s", nregistro, exc)
                 stats = replace(stats, errores=stats.errores + 1)
                 if len(failed_ids) < settings.max_error_ids:
                     failed_ids.append(nregistro)
@@ -121,7 +121,7 @@ def run_full_build(settings: Settings) -> int:
     save_state(settings.state_path, state)
 
     LOGGER.info(
-        "FULL complete version=%s medicamentos=%s presentaciones=%s errores=%s",
+        "FULL completado version=%s medicamentos=%s presentaciones=%s errores=%s",
         settings.version,
         stats.medicamentos_procesados,
         stats.presentaciones_emitidas,

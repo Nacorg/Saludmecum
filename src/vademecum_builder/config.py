@@ -37,7 +37,7 @@ class Settings:
     ) -> "Settings":
         mode_raw = (cli_mode or os.getenv("MODE") or BuildMode.FULL.value).strip().lower()
         if mode_raw not in {BuildMode.FULL.value, BuildMode.INCREMENTAL.value}:
-            raise ValueError(f"MODE invalid: {mode_raw}")
+            raise ValueError(f"MODE inválido: {mode_raw}")
         mode = BuildMode(mode_raw)
 
         out_dir = Path(cli_out_dir or os.getenv("OUT_DIR") or "./out").resolve()
@@ -58,11 +58,11 @@ class Settings:
         ).resolve()
 
         if timeout <= 0:
-            raise ValueError("HTTP_TIMEOUT must be > 0")
+            raise ValueError("HTTP_TIMEOUT debe ser > 0")
         if retries < 0:
-            raise ValueError("HTTP_MAX_RETRIES must be >= 0")
+            raise ValueError("HTTP_MAX_RETRIES debe ser >= 0")
         if max_error_ids <= 0:
-            raise ValueError("MAX_ERROR_IDS must be > 0")
+            raise ValueError("MAX_ERROR_IDS debe ser > 0")
 
         return Settings(
             mode=mode,

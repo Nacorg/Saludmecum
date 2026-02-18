@@ -30,7 +30,7 @@ def run_incremental_build(settings: Settings) -> int:
 
     prior_state = load_state(settings.state_path)
     if prior_state is None or not prior_state.last_incremental_date:
-        LOGGER.warning("state.json missing or invalid. Falling back to FULL build.")
+        LOGGER.warning("state.json ausente o inválido. Se hará fallback a FULL.")
         return run_full_build(settings)
 
     client = CimaClient(
@@ -100,8 +100,8 @@ def run_incremental_build(settings: Settings) -> int:
                     if cn_fallback:
                         LOGGER.warning(
                             (
-                                "Error processing baja nregistro=%s. "
-                                "Using CN fallback from registroCambios: %s"
+                                "Error procesando baja nregistro=%s. "
+                                "Usando CN de respaldo desde registroCambios: %s"
                             ),
                             nregistro,
                             cn_fallback,
@@ -112,7 +112,7 @@ def run_incremental_build(settings: Settings) -> int:
                             presentaciones_eliminadas=stats.presentaciones_eliminadas + 1,
                         )
                     else:
-                        LOGGER.exception("Error processing baja nregistro=%s: %s", nregistro, exc)
+                        LOGGER.exception("Error procesando baja nregistro=%s: %s", nregistro, exc)
                         stats = replace(stats, errores=stats.errores + 1)
                     if len(failed_ids) < settings.max_error_ids:
                         failed_ids.append(nregistro)
@@ -121,7 +121,7 @@ def run_incremental_build(settings: Settings) -> int:
             try:
                 med_payload = client.get_medicamento(nregistro)
             except Exception as exc:
-                LOGGER.exception("Error requesting medicamento nregistro=%s: %s", nregistro, exc)
+                LOGGER.exception("Error al solicitar medicamento nregistro=%s: %s", nregistro, exc)
                 stats = replace(stats, errores=stats.errores + 1)
                 if len(failed_ids) < settings.max_error_ids:
                     failed_ids.append(nregistro)
@@ -187,7 +187,7 @@ def run_incremental_build(settings: Settings) -> int:
     save_state(settings.state_path, new_state)
 
     LOGGER.info(
-        "INCREMENTAL complete version=%s meds=%s emitted=%s deleted=%s errors=%s",
+        "INCREMENTAL completado version=%s meds=%s emitidos=%s eliminados=%s errores=%s",
         settings.version,
         stats.medicamentos_procesados,
         stats.presentaciones_emitidas,

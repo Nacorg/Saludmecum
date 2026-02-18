@@ -50,10 +50,10 @@ def load_state(path: Path) -> StateData | None:
     try:
         raw = json.loads(path.read_text(encoding="utf-8"))
     except Exception as exc:
-        LOGGER.warning("Unable to read state file %s: %s", path, exc)
+        LOGGER.warning("No se pudo leer el fichero state %s: %s", path, exc)
         return None
     if not isinstance(raw, dict):
-        LOGGER.warning("State file %s is not a JSON object", path)
+        LOGGER.warning("El fichero state %s no es un objeto JSON", path)
         return None
     return StateData.from_raw(raw)
 

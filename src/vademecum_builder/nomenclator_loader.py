@@ -44,11 +44,11 @@ def load_nomenclator(
             source_path = _download(url=url, out_dir=out_dir, timeout=timeout)
             source_ref = f"{url}#{_sha256_file(source_path)}"
         except Exception as exc:
-            LOGGER.warning("Nomenclator download failed (%s). Continuing without it.", exc)
+            LOGGER.warning("Falló la descarga del nomenclátor (%s). Se continúa sin él.", exc)
             return None
     elif path:
         if not path.exists():
-            LOGGER.warning("NOMENCLATOR_PATH does not exist: %s", path)
+            LOGGER.warning("NOMENCLATOR_PATH no existe: %s", path)
             return None
         source_path = path
         source_ref = f"{path.name}#{_sha256_file(path)}"
@@ -65,13 +65,13 @@ def load_nomenclator(
         elif ext in {".xls", ".xlsx"}:
             data = _load_excel(source_path)
         else:
-            LOGGER.warning("Unsupported nomenclator format: %s", source_path)
+            LOGGER.warning("Formato de nomenclátor no soportado: %s", source_path)
             return None
     except Exception as exc:
-        LOGGER.warning("Failed reading nomenclator file (%s). Continuing without it.", exc)
+        LOGGER.warning("Falló la lectura del fichero de nomenclátor (%s). Se continúa sin él.", exc)
         return None
 
-    LOGGER.info("Loaded nomenclator entries=%s from %s", len(data), source_path)
+    LOGGER.info("Entradas de nomenclátor cargadas=%s desde %s", len(data), source_path)
     return NomenclatorData(by_cn=data, source_ref=source_ref)
 
 
@@ -103,7 +103,7 @@ def _load_excel(path: Path) -> dict[str, NomenclatorEntry]:
     try:
         import pandas as pd  # type: ignore
     except ImportError as exc:
-        raise RuntimeError("pandas/openpyxl not installed for XLS/XLSX support") from exc
+        raise RuntimeError("pandas/openpyxl no instalados para soporte XLS/XLSX") from exc
 
     frame = pd.read_excel(path)
     rows = frame.to_dict(orient="records")

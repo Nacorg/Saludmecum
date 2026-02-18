@@ -12,33 +12,33 @@ from .config import BuildMode, Settings
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="vademecum_builder",
-        description="Build CIMA offline vademecum datasets (FULL or INCREMENTAL).",
+        description="Construye datasets offline de vademécum CIMA (FULL o INCREMENTAL).",
     )
     parser.add_argument(
         "--mode",
         choices=[BuildMode.FULL.value, BuildMode.INCREMENTAL.value],
         default=None,
-        help="Build mode. If omitted, MODE env var is used and defaults to full.",
+        help="Modo de construcción. Si se omite, usa MODE y por defecto full.",
     )
     parser.add_argument(
         "--version",
         default=None,
-        help="Version date (YYYY-MM-DD). Defaults to UTC today.",
+        help="Fecha de versión (YYYY-MM-DD). Por defecto, hoy en UTC.",
     )
     parser.add_argument(
         "--out-dir",
         default=None,
-        help="Output directory. Defaults to OUT_DIR or ./out.",
+        help="Directorio de salida. Por defecto OUT_DIR o ./out.",
     )
     parser.add_argument(
         "--state-path",
         default=None,
-        help="State path. Defaults to STATE_PATH or <out-dir>/state.json.",
+        help="Ruta de state. Por defecto STATE_PATH o <out-dir>/state.json.",
     )
     parser.add_argument(
         "--log-level",
         default="INFO",
-        help="Logging level (DEBUG, INFO, WARNING, ERROR). Default: INFO",
+        help="Nivel de logs (DEBUG, INFO, WARNING, ERROR). Por defecto: INFO",
     )
     return parser
 
@@ -60,7 +60,7 @@ def main(argv: list[str] | None = None) -> int:
             cli_state_path=args.state_path,
         )
     except ValueError as exc:
-        logging.getLogger(__name__).error("Invalid configuration: %s", exc)
+        logging.getLogger(__name__).error("Configuración inválida: %s", exc)
         return 2
 
     if settings.mode is BuildMode.FULL:

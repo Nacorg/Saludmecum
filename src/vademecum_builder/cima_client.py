@@ -32,10 +32,10 @@ class CimaClient:
             payload = self._get_json("/medicamentos", params={"pagina": page})
             items = _extract_list(payload)
             if not items:
-                LOGGER.info("No more medicamentos pages after page=%s", page)
+                LOGGER.info("No hay más páginas de medicamentos tras la página=%s", page)
                 break
 
-            LOGGER.info("Fetched medicamentos page=%s items=%s", page, len(items))
+            LOGGER.info("Página de medicamentos obtenida=%s elementos=%s", page, len(items))
             for item in items:
                 if isinstance(item, dict):
                     yield item

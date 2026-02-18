@@ -1,10 +1,10 @@
-name: Build vademecum
+name: Construir vademécum
 
 on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "Build mode"
+        description: "Modo de construcción"
         required: true
         default: incremental
         type: choice
@@ -23,20 +23,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Descargar código
         uses: actions/checkout@v4
 
-      - name: Setup Python
+      - name: Configurar Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install
+      - name: Instalar
         run: |
           python -m pip install --upgrade pip
           pip install -e .
 
-      - name: Restore previous state from release
+      - name: Recuperar state anterior desde release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -46,12 +46,12 @@ jobs:
           status=$?
           set -e
           if [ $status -ne 0 ]; then
-            echo "No previous state.json found in release 'latest'."
+            echo "No se encontró state.json previo en el release 'latest'."
           else
-            echo "Recovered state.json from previous release."
+            echo "Se recuperó state.json del release anterior."
           fi
 
-      - name: Select mode
+      - name: Seleccionar modo
         id: select_mode
         run: |
           mode="incremental"
@@ -61,9 +61,9 @@ jobs:
             mode="full"
           fi
           echo "mode=$mode" >> "$GITHUB_OUTPUT"
-          echo "Selected mode: $mode"
+          echo "Modo seleccionado: $mode"
 
-      - name: Build dataset
+      - name: Construir dataset
         env:
           OUT_DIR: ./out
           MODE: ${{ steps.select_mode.outputs.mode }}
@@ -73,7 +73,7 @@ jobs:
         run: |
           python -m vademecum_builder --mode "${{ steps.select_mode.outputs.mode }}"
 
-      - name: Create or update release latest
+      - name: Crear o actualizar release latest
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest

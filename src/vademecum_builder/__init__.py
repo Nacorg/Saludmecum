@@ -1,4 +1,4 @@
-"""Vademecum Builder package."""
+"""Paquete constructor de vademécum."""
 
 __all__ = [
     "__version__",
