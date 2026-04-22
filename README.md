@@ -104,3 +104,4 @@ Workflow incluido en `.github/workflows/vademecum.yml`:
 - Ejecuta full mensual automáticamente (día 1) para refresco de base.
 - Recupera `state.json` previo de la publicación `latest` si existe.
 - Genera artefactos y actualiza la publicación `latest` con `manifest.json`, `state.json` y `*.gz`.
+-
