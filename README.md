@@ -8,7 +8,7 @@ Pipeline en Python 3.11+ para construir vademécum offline en `.jsonl.gz` con mo
 python -m pip install --upgrade pip
 pip install -e .
 ```
-
+      
 Soporte opcional para Excel:
 
 ```bash
